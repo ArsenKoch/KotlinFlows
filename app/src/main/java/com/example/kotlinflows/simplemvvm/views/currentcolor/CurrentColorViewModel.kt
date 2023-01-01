@@ -16,7 +16,6 @@ import com.example.kotlinflows.foundation.views.BaseViewModel
 import com.example.kotlinflows.foundation.views.LiveResult
 import com.example.kotlinflows.foundation.views.MutableLiveResult
 import com.example.kotlinflows.simplemvvm.R
-import com.example.kotlinflows.simplemvvm.model.colors.ColorListener
 import com.example.kotlinflows.simplemvvm.model.colors.ColorsRepository
 import com.example.kotlinflows.simplemvvm.model.colors.NamedColor
 import com.example.kotlinflows.simplemvvm.views.changecolor.ChangeColorFragment
@@ -35,18 +34,13 @@ class CurrentColorViewModel(
     private val _currentColor = MutableLiveResult<NamedColor>(PendingResult())
     val currentColor: LiveResult<NamedColor> = _currentColor
 
-    private val colorListener: ColorListener = {
-        _currentColor.postValue(SuccessResult(it))
-    }
-
     init {
-        colorsRepository.addListener(colorListener)
+        viewModelScope.launch {
+            colorsRepository.listenCurrentColor().collect {
+                _currentColor.postValue(SuccessResult(it))
+            }
+        }
         load()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        colorsRepository.removeListener(colorListener)
     }
 
     override fun onResult(result: Any) {
