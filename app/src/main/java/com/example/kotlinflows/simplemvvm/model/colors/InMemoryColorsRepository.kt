@@ -6,6 +6,7 @@ import kotlinx.coroutines.withContext
 import com.example.kotlinflows.foundation.model.coroutines.IoDispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 /**
  * Simple in-memory implementation of [ColorsRepository]
@@ -54,7 +55,7 @@ class InMemoryColorsRepository(
         } else {
             emit(100)
         }
-    }
+    }.flowOn(ioDispatchers.value)
 
     companion object {
         private val AVAILABLE_COLORS = listOf(
