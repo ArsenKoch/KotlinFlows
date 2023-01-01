@@ -10,6 +10,7 @@ import com.example.kotlinflows.foundation.sideeffects.permissions.plugin.Permiss
 import com.example.kotlinflows.foundation.sideeffects.resources.plugin.ResourcesPlugin
 import com.example.kotlinflows.foundation.sideeffects.toasts.plugin.ToastsPlugin
 import com.example.kotlinflows.foundation.views.activity.BaseActivity
+import com.example.kotlinflows.simplemvvm.databinding.ActivityMainBinding
 import com.example.kotlinflows.simplemvvm.views.currentcolor.CurrentColorFragment
 
 /**
@@ -17,6 +18,10 @@ import com.example.kotlinflows.simplemvvm.views.currentcolor.CurrentColorFragmen
  * for all screens.
  */
 class MainActivity : BaseActivity() {
+
+    private val binding by lazy {
+        ActivityMainBinding.inflate(layoutInflater)
+    }
 
     override fun registerPlugins(manager: SideEffectPluginsManager) = with(manager) {
         val navigator = createNavigator()
@@ -30,7 +35,7 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(binding.root)
     }
 
     private fun createNavigator() = StackFragmentNavigator(
