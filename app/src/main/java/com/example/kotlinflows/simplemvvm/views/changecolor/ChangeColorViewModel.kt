@@ -15,7 +15,10 @@ import com.example.kotlinflows.simplemvvm.model.colors.ColorsRepository
 import com.example.kotlinflows.simplemvvm.model.colors.NamedColor
 import com.example.kotlinflows.simplemvvm.views.changecolor.ChangeColorFragment.Screen
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 
 class ChangeColorViewModel(
@@ -28,14 +31,18 @@ class ChangeColorViewModel(
 ) : BaseViewModel(), ColorsAdapter.Listener {
 
     // input sources
-    private val _availableColors = MutableLiveResult<NamedColor>(PendingResult())
+    private val _availableColors = MutableStateFlow<Result<List<NamedColor>>>(PendingResult())
     private val _currentColorId =
         savedStateHandle.getStateFlow("currentColorId", screen.currentColorId)
     private val _saveInProgress = MutableStateFlow(false)
 
     // main destination (contains merged values from _availableColors & _currentColorId)
-    private val _viewState = MediatorLiveResult<ViewState>()
-    val viewState: LiveResult<ViewState> = _viewState
+    val viewState: Flow<Result<ViewState>> = combine(
+        _availableColors,
+        _currentColorId,
+        _saveInProgress,
+        ::mergeSources
+    )
 
     val screenTitle: LiveData<String> = Transformations.map(viewState) { result ->
         if (result is SuccessResult) {
@@ -90,13 +97,14 @@ class ChangeColorViewModel(
      * ([_currentColorId] live-data) + whether save is in progress or not, then we use all of
      * these values in order to create a [ViewState] instance, which is in its turn rendered by fragment.
      */
-    private fun mergeSources() {
-        val colors = _availableColors.value ?: return
-        val currentColorId = _currentColorId.value ?: return
-        val saveInProgress = _saveInProgress.value ?: return
+    private fun mergeSources(
+        colors: Result<List<NamedColor>>,
+        currentColorId: Long,
+        saveInProgress: Boolean
+    ): Result<ViewState> {
 
         // map Result<List<NamedColor>> to Result<ViewState>
-        _viewState.value = colors.map { colorsList ->
+        return colors.map { colorsList ->
             ViewState(
                 // map List<NamedColor> to List<NamedColorListItem>
                 colorsList = colorsList.map { NamedColorListItem(it, currentColorId == it.id) },
