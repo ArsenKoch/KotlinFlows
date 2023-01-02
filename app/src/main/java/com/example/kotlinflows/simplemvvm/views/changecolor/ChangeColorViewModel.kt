@@ -15,6 +15,7 @@ import com.example.kotlinflows.simplemvvm.model.colors.ColorsRepository
 import com.example.kotlinflows.simplemvvm.model.colors.NamedColor
 import com.example.kotlinflows.simplemvvm.views.changecolor.ChangeColorFragment.Screen
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class ChangeColorViewModel(
@@ -27,10 +28,10 @@ class ChangeColorViewModel(
 ) : BaseViewModel(), ColorsAdapter.Listener {
 
     // input sources
-    private val _availableColors = MutableLiveResult<List<NamedColor>>(PendingResult())
+    private val _availableColors = MutableLiveResult<NamedColor>(PendingResult())
     private val _currentColorId =
-        savedStateHandle.getLiveData("currentColorId", screen.currentColorId)
-    private val _saveInProgress = MutableLiveData(false)
+        savedStateHandle.getStateFlow("currentColorId", screen.currentColorId)
+    private val _saveInProgress = MutableStateFlow(false)
 
     // main destination (contains merged values from _availableColors & _currentColorId)
     private val _viewState = MediatorLiveResult<ViewState>()
