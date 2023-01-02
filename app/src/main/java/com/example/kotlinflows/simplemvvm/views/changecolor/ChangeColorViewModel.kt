@@ -1,6 +1,7 @@
 package com.example.kotlinflows.simplemvvm.views.changecolor
 
 import androidx.lifecycle.*
+import androidx.lifecycle.map
 import com.example.kotlinflows.foundation.model.PendingResult
 import com.example.kotlinflows.foundation.model.SuccessResult
 import com.example.kotlinflows.foundation.sideeffects.navigator.Navigator
@@ -15,10 +16,7 @@ import com.example.kotlinflows.simplemvvm.model.colors.ColorsRepository
 import com.example.kotlinflows.simplemvvm.model.colors.NamedColor
 import com.example.kotlinflows.simplemvvm.views.changecolor.ChangeColorFragment.Screen
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class ChangeColorViewModel(
@@ -44,36 +42,31 @@ class ChangeColorViewModel(
         ::mergeSources
     )
 
-    val screenTitle: LiveData<String> = Transformations.map(viewState) { result ->
-        if (result is SuccessResult) {
+    val screenTitle: LiveData<String> = viewState.map { result ->
+        return@map if (result is SuccessResult) {
             val currentColor = result.data.colorsList.first { it.selected }
             resources.getString(R.string.change_color_screen_title, currentColor.namedColor.name)
         } else {
             resources.getString(R.string.change_color_screen_title_simple)
         }
-    }
+    }.asLiveData()
 
     init {
         load()
-        // initializing MediatorLiveData
-        _viewState.addSource(_availableColors) { mergeSources() }
-        _viewState.addSource(_currentColorId) { mergeSources() }
-        _viewState.addSource(_saveInProgress) { mergeSources() }
     }
 
     override fun onColorChosen(namedColor: NamedColor) {
-        if (_saveInProgress.value == true) return
+        if (_saveInProgress.value) return
         _currentColorId.value = namedColor.id
     }
 
     fun onSavePressed() = viewModelScope.launch {
         try {
-            _saveInProgress.postValue(true)
+            _saveInProgress.value = true
             val currentColorId =
-                _currentColorId.value ?: throw IllegalStateException("Color ID should not be NULL")
+                _currentColorId.value
             val currentColor = colorsRepository.getById(currentColorId)
-            colorsRepository.setCurrentColor(currentColor)
-
+            colorsRepository.setCurrentColor(currentColor).collect()
             navigator.goBack(currentColor)
         } catch (e: Exception) {
             if (e is CancellationException) toasts.toast(resources.getString(R.string.error_happened))
