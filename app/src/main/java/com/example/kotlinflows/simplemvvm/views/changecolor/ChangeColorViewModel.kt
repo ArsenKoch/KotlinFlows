@@ -1,15 +1,11 @@
 package com.example.kotlinflows.simplemvvm.views.changecolor
 
 import androidx.lifecycle.*
-import androidx.lifecycle.map
 import com.example.kotlinflows.foundation.model.*
 import com.example.kotlinflows.foundation.sideeffects.navigator.Navigator
 import com.example.kotlinflows.foundation.sideeffects.resources.Resources
 import com.example.kotlinflows.foundation.sideeffects.toasts.Toasts
 import com.example.kotlinflows.foundation.views.BaseViewModel
-import com.example.kotlinflows.foundation.views.LiveResult
-import com.example.kotlinflows.foundation.views.MediatorLiveResult
-import com.example.kotlinflows.foundation.views.MutableLiveResult
 import com.example.kotlinflows.simplemvvm.R
 import com.example.kotlinflows.simplemvvm.model.colors.ColorsRepository
 import com.example.kotlinflows.simplemvvm.model.colors.NamedColor
@@ -56,22 +52,24 @@ class ChangeColorViewModel(
     }
 
     override fun onColorChosen(namedColor: NamedColor) {
-        if (_saveInProgress.value) return
+        if (_saveInProgress.value.isInProgress()) return
         _currentColorId.value = namedColor.id
     }
 
     fun onSavePressed() = viewModelScope.launch {
         try {
-            _saveInProgress.value = true
+            _saveInProgress.value = PercentageProgress.START
             val currentColorId =
                 _currentColorId.value
             val currentColor = colorsRepository.getById(currentColorId)
-            colorsRepository.setCurrentColor(currentColor).collect()
+            colorsRepository.setCurrentColor(currentColor).collect {
+                _saveInProgress.value = PercentageProgress(it)
+            }
             navigator.goBack(currentColor)
         } catch (e: Exception) {
             if (e is CancellationException) toasts.toast(resources.getString(R.string.error_happened))
         } finally {
-            _saveInProgress.value = false
+            _saveInProgress.value = EmptyProgress
         }
     }
 
