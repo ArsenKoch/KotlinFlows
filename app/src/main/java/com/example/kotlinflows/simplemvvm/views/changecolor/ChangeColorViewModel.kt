@@ -7,6 +7,7 @@ import com.example.kotlinflows.foundation.model.*
 import com.example.kotlinflows.foundation.sideeffects.navigator.Navigator
 import com.example.kotlinflows.foundation.sideeffects.resources.Resources
 import com.example.kotlinflows.foundation.sideeffects.toasts.Toasts
+import com.example.kotlinflows.foundation.utils.finiteShareIn
 import com.example.kotlinflows.foundation.views.BaseViewModel
 import com.example.kotlinflows.simplemvvm.R
 import com.example.kotlinflows.simplemvvm.model.colors.ColorsRepository
@@ -74,8 +75,7 @@ class ChangeColorViewModel(
             }
 
             val flow = colorsRepository.setCurrentColor(currentColor)
-                .shareIn(this, SharingStarted.Eagerly, 1)
-                .takeWhile { it < 100 }
+                .finiteShareIn(this)
 
             val instantJob = async {
                 flow.collect {
