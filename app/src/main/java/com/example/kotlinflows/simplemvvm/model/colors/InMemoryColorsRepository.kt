@@ -1,12 +1,14 @@
 package com.example.kotlinflows.simplemvvm.model.colors
 
 import android.graphics.Color
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import com.example.kotlinflows.foundation.model.coroutines.IoDispatchers
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 
 /**
  * Simple in-memory implementation of [ColorsRepository]
@@ -16,19 +18,13 @@ class InMemoryColorsRepository(
 ) : ColorsRepository {
 
     private var currentColor: NamedColor = AVAILABLE_COLORS[0]
+    private val currentColorFlow = MutableSharedFlow<NamedColor>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
 
-    private val listeners = mutableSetOf<ColorListener>()
-
-    override fun listenCurrentColor(): Flow<NamedColor> = callbackFlow {
-        val listener: ColorListener = {
-            trySend(it)
-        }
-        listeners.add(listener)
-
-        awaitClose {
-            listeners.remove(listener)
-        }
-    }.buffer(Channel.CONFLATED)
+    override fun listenCurrentColor() = currentColorFlow
 
     override suspend fun getAvailableColors(): List<NamedColor> = withContext(ioDispatchers.value) {
         delay(1000)
@@ -54,7 +50,7 @@ class InMemoryColorsRepository(
                 emit(progress)
             }
             currentColor = color
-            listeners.forEach { it(color) }
+            currentColorFlow.emit(color)
         } else {
             emit(100)
         }
