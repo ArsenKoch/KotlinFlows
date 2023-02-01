@@ -19,5 +19,4 @@ class MainThreadDispatcher : Dispatcher {
             handler.post(block)
         }
     }
-
 }

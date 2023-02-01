@@ -18,5 +18,4 @@ interface Navigator {
      * Go back to the previous screen and optionally send some results.
      */
     fun goBack(result: Any? = null)
-
 }

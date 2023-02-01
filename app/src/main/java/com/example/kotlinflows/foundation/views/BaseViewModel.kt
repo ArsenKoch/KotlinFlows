@@ -15,6 +15,7 @@ typealias MediatorLiveResult<T> = MediatorLiveData<Result<T>>
  * Base class for all view-models.
  */
 
+@Suppress("UNREACHABLE_CODE")
 open class BaseViewModel : ViewModel() {
 
     private val coroutineContext = SupervisorJob() + Dispatchers.Main.immediate

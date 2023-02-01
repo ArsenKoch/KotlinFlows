@@ -25,5 +25,4 @@ class NavigatorPlugin(
     override fun createImplementation(mediator: Navigator): Navigator {
         return navigator
     }
-
 }

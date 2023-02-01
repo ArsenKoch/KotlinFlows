@@ -12,5 +12,4 @@ interface Intents {
      * Open system settings for this application.
      */
     fun openAppSettings()
-
 }

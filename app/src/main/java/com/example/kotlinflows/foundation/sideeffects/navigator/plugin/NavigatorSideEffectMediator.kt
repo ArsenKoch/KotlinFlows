@@ -13,5 +13,4 @@ class NavigatorSideEffectMediator : SideEffectMediator<Navigator>(), Navigator {
     override fun goBack(result: Any?) = target {
         it.goBack(result)
     }
-
 }

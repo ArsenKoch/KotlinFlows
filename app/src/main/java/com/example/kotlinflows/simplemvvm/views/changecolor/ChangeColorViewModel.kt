@@ -36,7 +36,7 @@ class ChangeColorViewModel(
     private val _sampledSaveInProgress = MutableStateFlow<Progress>(EmptyProgress)
 
     // main destination (contains merged values from _availableColors & _currentColorId)
-    val viewState: Flow<Result<ViewState>> = combine(
+    private val viewState: Flow<Result<ViewState>> = combine(
         _availableColors,
         _currentColorId,
         _instantSaveInProgress,

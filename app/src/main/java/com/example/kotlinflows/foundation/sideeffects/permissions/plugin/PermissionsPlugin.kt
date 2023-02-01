@@ -22,5 +22,4 @@ class PermissionsPlugin :
     override fun createImplementation(mediator: PermissionsSideEffectMediator): PermissionsSideEffectImpl {
         return PermissionsSideEffectImpl(mediator.retainedState)
     }
-
 }

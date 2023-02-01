@@ -27,6 +27,11 @@ abstract class BaseActivity : AppCompatActivity(), ActivityDelegateHolder {
         delegate.onSavedInstanceState(outState)
     }
 
+    @Deprecated("Deprecated in Java", ReplaceWith(
+        "if (!delegate.onBackPressed()) super.onBackPressed()",
+        "androidx.appcompat.app.AppCompatActivity"
+    )
+    )
     override fun onBackPressed() {
         if (!delegate.onBackPressed()) super.onBackPressed()
     }

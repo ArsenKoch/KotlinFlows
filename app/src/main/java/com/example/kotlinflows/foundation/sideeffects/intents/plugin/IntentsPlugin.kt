@@ -17,5 +17,4 @@ class IntentsPlugin : SideEffectPlugin<Intents, Nothing> {
     override fun createMediator(applicationContext: Context): SideEffectMediator<Nothing> {
         return IntentsSideEffectMediator(applicationContext)
     }
-
 }

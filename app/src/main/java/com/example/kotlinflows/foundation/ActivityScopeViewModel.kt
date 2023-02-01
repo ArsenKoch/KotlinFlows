@@ -22,5 +22,4 @@ class ActivityScopeViewModel : ViewModel() {
         super.onCleared()
         sideEffectMediatorsHolder.clear()
     }
-
 }

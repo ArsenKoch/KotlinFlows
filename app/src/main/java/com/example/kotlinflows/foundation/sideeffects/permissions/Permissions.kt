@@ -22,5 +22,4 @@ interface Permissions {
      * See [PermissionStatus]
      */
     suspend fun requestPermission(permission: String): PermissionStatus
-
 }

@@ -3,8 +3,6 @@ package com.example.kotlinflows.simplemvvm.model.colors
 import com.example.kotlinflows.foundation.model.Repository
 import kotlinx.coroutines.flow.Flow
 
-typealias ColorListener = (NamedColor) -> Unit
-
 /**
  * Repository interface example.
  *

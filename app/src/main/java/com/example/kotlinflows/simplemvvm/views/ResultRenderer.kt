@@ -46,6 +46,6 @@ fun <T> BaseFragment.renderSimpleResult(
 /**
  * Assign onClick listener for default try-again button.
  */
-fun BaseFragment.onTryAgain(root: View, onTryAgainPressed: () -> Unit) {
+fun onTryAgain(root: View, onTryAgainPressed: () -> Unit) {
     root.findViewById<Button>(R.id.tryAgainButton).setOnClickListener { onTryAgainPressed() }
 }
